@@ -13,6 +13,7 @@
     "@tailwindcss/postcss": "^4.1.12",
     "@tailwindcss/vite": "^4.1.12",
     "firebase": "^12.1.0",
+    "firebase-admin": "^13.4.0",
     "gsap": "3.12.5",
     "howler": "^2.2.4",
     "pixi.js": "^8.12.0",
