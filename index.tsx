@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useRef, useLayoutEffect, FC, ReactNode, DragEvent } from 'react';
 import { createRoot } from 'react-dom/client';
 import { initializeApp } from 'firebase/app';
@@ -1129,7 +1130,7 @@ const TrashCollectingGame: FC<{ onCollectionEnd: (collectedItems: TrashItemData[
 
         const handlePointerMove = (e: PointerEvent) => {
              const pointerX = e.clientX + cameraX;
-             targetX = gsap.utils.clamp(viewportWidth * 0.1, worldWidth - viewportWidth * 0.1, pointerX);
+             targetX = gsap.utils.clamp(90, worldWidth - 90, pointerX);
         };
         const handlePointerDown = () => { if (gamePhase === 'idle' && collectedTrash.length < maxCapacity) setGamePhase('lowering'); };
         const handlePointerUp = () => { if (gamePhase === 'lowering') setGamePhase('rising'); };
@@ -1430,7 +1431,7 @@ const TrashSortingGame: FC<{ initialTrash: TrashItemData[], onGameEnd: (result: 
     
     const handleDrop = (e: DragEvent<HTMLDivElement>, binType: TrashType) => {
         e.preventDefault();
-        const trashId = parseInt(e.dataTransfer.getData("trashId"), 10);
+        const trashId = parseFloat(e.dataTransfer.getData("trashId"));
         const droppedItem = items[currentIndex];
         
         if (droppedItem && droppedItem.id === trashId && droppedItem.type !== 'collectible') {
