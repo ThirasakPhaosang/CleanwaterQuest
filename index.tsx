@@ -1025,7 +1025,7 @@ const WaterSurface: FC<{ waterLevel: number }> = ({ waterLevel }) => (
 );
 
 const UnderwaterScenery: FC<{ worldWidth: number, waterLevel: number }> = React.memo(({ worldWidth, waterLevel }) => {
-    const scenery = useRef<JSX.Element[]>([]);
+    const scenery = useRef<React.ReactElement[]>([]);
     
     if (scenery.current.length === 0) {
         // Rocks
@@ -2231,9 +2231,9 @@ const App: FC = () => {
 
                 if (!playerDoc.exists()) throw new Error("Player document not found.");
 
-                const totalNewItems = Object.values(sortedCounts).reduce((sum, count) => sum + count, 0);
+                const totalNewItems = Object.values(sortedCounts).reduce((sum: number, count) => sum + Number(count), 0);
                  if (statsDoc.exists()) {
-                    const statsUpdateData: { [key: string]: any } = { totalItems: increment(totalNewItems) };
+                    const statsUpdateData: { [key: string]: any } = { totalItems: increment(Number(totalNewItems)) };
                     for (const type in sortedCounts) {
                         if ((sortedCounts[type as TrashType] || 0) > 0) {
                             statsUpdateData[type] = increment(sortedCounts[type as TrashType]);
@@ -2242,9 +2242,9 @@ const App: FC = () => {
                     transaction.update(statsDocRef, statsUpdateData);
                 } else {
                      const initialStats: GlobalStats = {
-                        totalItems: totalNewItems, organic: sortedCounts.organic || 0,
-                        recyclable: sortedCounts.recyclable || 0, general: sortedCounts.general || 0,
-                        hazardous: sortedCounts.hazardous || 0,
+                        totalItems: Number(totalNewItems), organic: Number(sortedCounts.organic) || 0,
+                        recyclable: Number(sortedCounts.recyclable) || 0, general: Number(sortedCounts.general) || 0,
+                        hazardous: Number(sortedCounts.hazardous) || 0,
                     };
                     transaction.set(statsDocRef, initialStats);
                 }
@@ -2281,7 +2281,7 @@ const App: FC = () => {
                      let progressIncrement = 0;
                      if (updatedContract.type === 'collect' && updatedContract.trashType) progressIncrement = sortedCounts[updatedContract.trashType];
                      if (updatedContract.type === 'sort') progressIncrement = correct;
-                     if (updatedContract.type === 'score') progressIncrement = score > updatedContract.progress ? score - q.progress : 0;
+                     if (updatedContract.type === 'score') progressIncrement = score > updatedContract.progress ? score - updatedContract.progress : 0;
                      const newProgress = updatedContract.progress + progressIncrement;
                      if (newProgress >= updatedContract.target && updatedContract.progress < updatedContract.target) newlyCompletedQuests.push({ ...updatedContract, progress: newProgress });
                      updatedContract = { ...updatedContract, progress: newProgress };
@@ -2480,7 +2480,7 @@ const App: FC = () => {
             if (!playerDoc.exists()) throw new Error("Player not found");
             
             const currentData = playerDoc.data() as PlayerData;
-            const canAfford = Object.entries(order.required).every(([type, amount]) => (currentData.inventory[type as TrashType] || 0) >= amount);
+            const canAfford = Object.entries(order.required).every(([type, amount]) => (currentData.inventory[type as TrashType] || 0) >= Number(amount));
             if (!canAfford) throw new Error("Not enough inventory");
 
             const updates: { [key: string]: any } = { marketOrder: null };
@@ -2498,7 +2498,7 @@ const App: FC = () => {
             if (!prev || !prev.marketOrder) return prev;
             const newInventory = { ...prev.inventory };
             Object.entries(prev.marketOrder.required).forEach(([type, amount]) => {
-                newInventory[type as TrashType] -= amount;
+                newInventory[type as TrashType] -= Number(amount);
             });
             return {
                 ...prev,
