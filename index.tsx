@@ -1130,7 +1130,7 @@ const TrashCollectingGame: FC<{ onCollectionEnd: (collectedItems: TrashItemData[
 
         const handlePointerMove = (e: PointerEvent) => {
              const pointerX = e.clientX + cameraX;
-             targetX = gsap.utils.clamp(90, worldWidth - 90, pointerX);
+             targetX = gsap.utils.clamp(0, worldWidth, pointerX);
         };
         const handlePointerDown = () => { if (gamePhase === 'idle' && collectedTrash.length < maxCapacity) setGamePhase('lowering'); };
         const handlePointerUp = () => { if (gamePhase === 'lowering') setGamePhase('rising'); };
@@ -1420,7 +1420,7 @@ const TrashSortingGame: FC<{ initialTrash: TrashItemData[], onGameEnd: (result: 
     }, [currentIndex, items]);
 
     const handleDragStart = (e: DragEvent<HTMLDivElement>, item: TrashItemData) => {
-        e.dataTransfer.setData("trashId", item.id.toString());
+        e.dataTransfer.setData("text/plain", item.id.toString());
         e.currentTarget.classList.add('dragging');
     };
 
@@ -1431,7 +1431,7 @@ const TrashSortingGame: FC<{ initialTrash: TrashItemData[], onGameEnd: (result: 
     
     const handleDrop = (e: DragEvent<HTMLDivElement>, binType: TrashType) => {
         e.preventDefault();
-        const trashId = parseFloat(e.dataTransfer.getData("trashId"));
+        const trashId = parseFloat(e.dataTransfer.getData("text/plain"));
         const droppedItem = items[currentIndex];
         
         if (droppedItem && droppedItem.id === trashId && droppedItem.type !== 'collectible') {
