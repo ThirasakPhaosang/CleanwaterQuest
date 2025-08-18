@@ -129,6 +129,9 @@ const translations = {
         contribute: 'Contribute',
         reefRestoration: 'Reef Restoration',
         restorationProgress: 'Restoration Progress: {progress}%',
+        yourFragments: 'Your Fragments: {count}',
+        yourContribution: 'Your Contribution: {count} Fragments',
+        globalProgress: 'Global Progress',
         endlessAbyss: 'Endless Abyss',
         comingSoon: 'Coming Soon',
         trash_1_name: 'Apple Core',
@@ -259,6 +262,9 @@ const translations = {
         contribute: 'บริจาค',
         reefRestoration: 'การฟื้นฟูแนวปะการัง',
         restorationProgress: 'ความคืบหน้า: {progress}%',
+        yourFragments: 'ชิ้นส่วนของคุณ: {count}',
+        yourContribution: 'คุณบริจาคแล้ว: {count} ชิ้น',
+        globalProgress: 'ความคืบหน้าของทุกคน',
         endlessAbyss: 'ห้วงลึกไร้สิ้นสุด',
         comingSoon: 'เร็วๆ นี้',
         trash_1_name: 'แกนแอปเปิ้ล',
@@ -401,7 +407,7 @@ interface PlayerData {
     marketOrder: MarketOrder | null;
     lastMarketOrderRefresh: Timestamp | null;
     collectibles: { mapPieces: number };
-    coralReefProgress: number;
+    personalContribution: number;
 }
 
 interface GameResult {
@@ -952,7 +958,7 @@ const HarborScreen: FC<{
                             <h2 className="font-display text-4xl dirty-crystal-text">{displayName}</h2>
                             <p className="text-sm">
                                 <span>💰 {coins} | 💎 {playerData?.upgradeCores || 0}</span>
-                                <span className="ml-2">Fragments: {playerData?.coralFragments || 0}</span>
+                                <span className="ml-2">🐠 {playerData?.coralFragments || 0}</span>
                                 <span className="ml-4">📜 {playerData?.collectibles.mapPieces || 0}</span>
                             </p>
                         </div>
@@ -1945,25 +1951,81 @@ const CustomizationModal: FC<{ onClose: () => void; playerData: PlayerData; t: (
     );
 };
 
-const CoralReefModal: FC<{ onClose: () => void; playerData: PlayerData; t: (key: TranslationKeys) => string; onContribute: (amount: number) => void; }> = ({ onClose, playerData, t, onContribute }) => {
+const CoralReefModal: FC<{ onClose: () => void; playerData: PlayerData; globalProgress: number; t: (key: TranslationKeys) => string; onContribute: (amount: number) => void; }> = ({ onClose, playerData, globalProgress, t, onContribute }) => {
     const modalRef = useRef<HTMLDivElement>(null);
     const [amount, setAmount] = useState(1);
-    useLayoutEffect(() => { gsap.from(modalRef.current, { scale: 0.5, opacity: 0, duration: 0.5, ease: 'back.out(1.7)' }); }, []);
+    const [isContributing, setIsContributing] = useState(false);
     
-    const canContribute = playerData.coralFragments >= amount && amount > 0;
+    useLayoutEffect(() => {
+        gsap.fromTo(modalRef.current, { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.5, ease: 'back.out(1.7)' });
+    }, []);
+
+    const handleContribute = async () => {
+        if (isContributing || !playerData || amount <= 0 || playerData.coralFragments < amount) return;
+        setIsContributing(true);
+        try {
+            await onContribute(amount);
+        } catch (error) {
+            console.error("Contribution failed:", error);
+        } finally {
+            setIsContributing(false);
+        }
+    };
+
+    const renderFauna = () => {
+        const fauna = [];
+        if (globalProgress > 10) fauna.push(<div key="fish1" className="fauna fish-school-1">🐠</div>);
+        if (globalProgress > 30) fauna.push(<div key="fish2" className="fauna fish-school-2">🐟</div>);
+        if (globalProgress > 60) fauna.push(<div key="turtle" className="fauna sea-turtle">🐢</div>);
+        if (globalProgress > 85) fauna.push(<div key="manta" className="fauna manta-ray">🌊</div>);
+        return fauna;
+    };
+    
+    const renderCorals = () => {
+        const coralCount = Math.floor(globalProgress / 2);
+        return Array.from({length: coralCount}).map((_, i) => {
+            const type = (i % 5) + 1;
+            const x = (i * 137.5) % 95; // Golden angle for distribution
+            const y = 50 + Math.sin(i * 2.1) * 30;
+            const delay = i * 0.05;
+            const size = 0.5 + Math.sin(i*5) * 0.3;
+            return <div key={i} className={`coral-piece coral-type-${type}`} style={{ left: `${x}%`, bottom: `${y}%`, animationDelay: `${delay}s`, transform: `scale(${size})` }} />
+        });
+    };
 
     return (
-        <div className="absolute inset-0 bg-black/60 z-40 flex items-center justify-center p-4">
-            <div ref={modalRef} className="coral-modal-popup">
-                <button onClick={onClose} className="absolute top-4 right-4 text-cyan-200 hover:text-white transition-colors text-3xl">&times;</button>
-                <h2 className="font-display text-4xl md:text-5xl dirty-crystal-text mb-6">{t('reefRestoration')}</h2>
-                <p className="mb-4">{t('restorationProgress').replace('{progress}', playerData.coralReefProgress.toString())}</p>
-                <div className="coral-progress-bar">
-                    <div className="coral-progress-fill" style={{width: `${playerData.coralReefProgress}%`}} />
+        <div className="absolute inset-0 bg-black/80 z-40 flex items-center justify-center p-4" onClick={onClose}>
+            <div ref={modalRef} className="coral-scene-popup" onClick={(e) => e.stopPropagation()}>
+                <button onClick={onClose} className="absolute top-4 right-4 text-cyan-200 hover:text-white transition-colors text-4xl z-50">&times;</button>
+                <div className="reef-scene">
+                    <div className="caustic-overlay"></div>
+                     <div className="seabed" style={{ '--progress': globalProgress, filter: `grayscale(${Math.max(0, 80 - globalProgress)}%)` } as React.CSSProperties}>
+                         {renderCorals()}
+                         {renderFauna()}
+                     </div>
                 </div>
-                <div className="mt-4">
-                    <p>Your Fragments: {playerData.coralFragments}</p>
-                    <GameButton onClick={() => onContribute(1)} disabled={playerData.coralFragments < 1}>{t('contribute')} 1 🐠</GameButton>
+                <div className="reef-ui-panel">
+                     <h2 className="reef-title">{t('reefRestoration')}</h2>
+                     <div className="reef-progress-display">
+                        <div className="font-display uppercase text-cyan-200">{t('globalProgress')}</div>
+                        <div className="w-full bg-black/30 rounded-full h-6 border-2 border-cyan-400/50 overflow-hidden">
+                            <div className="h-full rounded-full reef-progress-bar-fill" style={{ width: `${globalProgress}%` }}></div>
+                        </div>
+                        <div className="flex justify-between w-full">
+                            <span>0%</span>
+                            <span className="font-bold text-xl">{globalProgress.toFixed(2)}%</span>
+                            <span>100%</span>
+                        </div>
+                     </div>
+                     <div className="reef-contribution-area">
+                        <div className="text-lg">
+                            <p>{t('yourFragments').replace('{count}', playerData.coralFragments.toString())}</p>
+                            <p className="text-sm opacity-70">{t('yourContribution').replace('{count}', (playerData.personalContribution || 0).toString())}</p>
+                        </div>
+                         <GameButton onClick={handleContribute} disabled={isContributing || playerData.coralFragments < 1} className="text-xl">
+                            {t('contribute')} 1 🐠
+                        </GameButton>
+                     </div>
                 </div>
             </div>
         </div>
@@ -2005,6 +2067,7 @@ const App: FC = () => {
     const [authInitializing, setAuthInitializing] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [globalStats, setGlobalStats] = useState<GlobalStats | null>(null);
+    const [globalReefProgress, setGlobalReefProgress] = useState(0);
     const [saveError, setSaveError] = useState(false);
     const [completedQuestsForToast, setCompletedQuestsForToast] = useState<Quest[]>([]);
     
@@ -2064,7 +2127,7 @@ const App: FC = () => {
         customization: { boatColor: '#8b4513', flag: '🏴‍☠️' },
         inventory: { organic: 0, recyclable: 0, general: 0, hazardous: 0 },
         marketOrder: null, lastMarketOrderRefresh: null, collectibles: { mapPieces: 0 },
-        coralReefProgress: 0, coralFragments: 0
+        coralFragments: 0, personalContribution: 0,
     };
 
     const authStateChangedRef = useRef(false);
@@ -2091,7 +2154,7 @@ const App: FC = () => {
                                 dailyQuests: [], weeklyContract: null, lastDailyQuestRefresh: null, lastWeeklyContractRefresh: null,
                                 upgrades: { capacity: 1, hookSpeed: 1 }, research: {}, customization: { boatColor: '#8b4513', flag: '🏴‍☠️' },
                                 inventory: { organic: 0, recyclable: 0, general: 0, hazardous: 0 },
-                                marketOrder: null, lastMarketOrderRefresh: null, collectibles: { mapPieces: 0 }, coralReefProgress: 0,
+                                marketOrder: null, lastMarketOrderRefresh: null, collectibles: { mapPieces: 0 }, personalContribution: 0,
                                 ...dataFromDb, 
                                 displayName: currentUser.displayName || dataFromDb.displayName || tRef.current('adventurer'),
                                 photoURL: currentUser.photoURL || dataFromDb.photoURL || '🐙'
@@ -2140,7 +2203,7 @@ const App: FC = () => {
                                 dailyQuests: [], weeklyContract: null, lastDailyQuestRefresh: null, lastWeeklyContractRefresh: null,
                                 upgrades: { capacity: 1, hookSpeed: 1 }, research: {}, customization: { boatColor: '#8b4513', flag: '🏴‍☠️' },
                                 inventory: { organic: 0, recyclable: 0, general: 0, hazardous: 0 },
-                                marketOrder: null, lastMarketOrderRefresh: null, collectibles: { mapPieces: 0 }, coralReefProgress: 0,
+                                marketOrder: null, lastMarketOrderRefresh: null, collectibles: { mapPieces: 0 }, personalContribution: 0,
                             };
                             await setDoc(playerDocRef, newPlayerData);
                              const shuffledQuests = [...allQuestsPool].sort(() => 0.5 - Math.random());
@@ -2174,14 +2237,33 @@ const App: FC = () => {
     }, []);
     
      useEffect(() => {
-        if (!user) { setGlobalStats(null); return; };
+        if (!user) { 
+            setGlobalStats(null); 
+            setGlobalReefProgress(0);
+            return; 
+        };
         const statsDocRef = doc(db, 'globalStats', 'main');
-        const unsubscribe = onSnapshot(statsDocRef, (docSnap) => {
+        const reefDocRef = doc(db, 'coralReef', 'mainReef');
+
+        const unsubStats = onSnapshot(statsDocRef, (docSnap) => {
             if (docSnap.exists()) { setGlobalStats(docSnap.data() as GlobalStats); } else {
                 setGlobalStats({ totalItems: 0, organic: 0, recyclable: 0, general: 0, hazardous: 0 });
             }
         }, (error) => console.error("Failed to listen to global stats:", error));
-        return () => unsubscribe();
+
+        const unsubReef = onSnapshot(reefDocRef, (docSnap) => {
+            if (docSnap.exists()) {
+                setGlobalReefProgress(Math.min(100, docSnap.data().progress || 0));
+            } else {
+                setDoc(reefDocRef, { progress: 0 }); // Initialize if doesn't exist
+            }
+        }, (error) => console.error("Failed to listen to reef progress:", error));
+
+
+        return () => {
+            unsubStats();
+            unsubReef();
+        };
     }, [user]);
     
     const handleLogin = async () => {
@@ -2517,13 +2599,26 @@ const App: FC = () => {
         
         await runTransaction(db, async transaction => {
             const playerDocRef = doc(db, "players", user.uid);
+            const reefDocRef = doc(db, 'coralReef', 'mainReef');
+            
+            const playerDoc = await transaction.get(playerDocRef);
+            if (!playerDoc.exists() || (playerDoc.data()?.coralFragments || 0) < amount) {
+                throw new Error("Not enough fragments");
+            }
+
             transaction.update(playerDocRef, {
                 coralFragments: increment(-amount),
-                coralReefProgress: increment(amount) // 1 fragment = 1% progress
+                personalContribution: increment(amount)
+            });
+            
+            // 1 fragment = 0.01% progress (10,000 fragments for 100%)
+            const progressIncrement = amount * 0.01;
+            transaction.update(reefDocRef, {
+                progress: increment(progressIncrement)
             });
         });
 
-        setPlayerData(prev => prev ? { ...prev, coralFragments: prev.coralFragments - amount, coralReefProgress: Math.min(100, prev.coralReefProgress + amount) } : null);
+        setPlayerData(prev => prev ? { ...prev, coralFragments: prev.coralFragments - amount, personalContribution: (prev.personalContribution || 0) + amount } : null);
     };
 
 
@@ -2595,7 +2690,7 @@ const App: FC = () => {
                 <CustomizationModal onClose={() => setShowCustomization(false)} playerData={playerData} t={t} onSave={handleSaveCustomization} />
             )}
             {showCoralReef && playerData && !isGuest && (
-                <CoralReefModal onClose={() => setShowCoralReef(false)} playerData={playerData} t={t} onContribute={handleContributeToReef} />
+                <CoralReefModal onClose={() => setShowCoralReef(false)} playerData={playerData} globalProgress={globalReefProgress} t={t} onContribute={handleContributeToReef} />
             )}
             {completedQuestsForToast.length > 0 && 
                 <QuestCompletionToast quests={completedQuestsForToast} onDone={() => setCompletedQuestsForToast([])} t={t} />
