@@ -160,6 +160,14 @@ const translations = {
         trash_12_feedback: 'Old paint is considered hazardous waste.',
         trash_13_name: 'Message in a Bottle',
         trash_13_feedback: 'A fragment of an old map! What could it lead to?',
+        trash_14_name: 'Old Boot',
+        trash_14_feedback: 'This old leather boot belongs in general waste.',
+        trash_15_name: 'Soda Rings',
+        trash_15_feedback: 'These plastic rings are dangerous for animals. They go in general waste.',
+        trash_16_name: 'Leaky Barrel',
+        trash_16_feedback: "Who knows what's in here? This is definitely hazardous.",
+        trash_17_name: 'Tangled Fishing Net',
+        trash_17_feedback: 'A "ghost net". These are a huge problem and belong in general waste.',
     },
     th: {
         play: 'เล่น',
@@ -293,6 +301,14 @@ const translations = {
         trash_12_feedback: 'สีเก่าถือเป็นขยะอันตราย',
         trash_13_name: 'ข้อความในขวดแก้ว',
         trash_13_feedback: 'ชิ้นส่วนของแผนที่เก่า! มันจะนำไปสู่อะไรกันนะ?',
+        trash_14_name: 'รองเท้าบูทเก่า',
+        trash_14_feedback: 'รองเท้าหนังเก่านี้ควรทิ้งในขยะทั่วไป',
+        trash_15_name: 'ห่วงพลาสติก',
+        trash_15_feedback: 'ห่วงพลาสติกเหล่านี้เป็นอันตรายต่อสัตว์ ควรทิ้งในขยะทั่วไป',
+        trash_16_name: 'ถังน้ำมันรั่ว',
+        trash_16_feedback: 'ใครจะรู้ว่ามีอะไรอยู่ข้างใน? นี่เป็นขยะอันตรายแน่นอน',
+        trash_17_name: 'อวนประมง',
+        trash_17_feedback: '"อวนผี" เหล่านี้เป็นปัญหาใหญ่และควรทิ้งในขยะทั่วไป',
     }
 };
 
@@ -331,6 +347,10 @@ const allTrashItemsRawData: (Omit<TrashItemData, 'name' | 'feedback'> & { nameKe
     { id: 11, nameKey: 'trash_11_name', type: 'general', feedbackKey: 'trash_11_feedback', icon: 'plastic_bag', rarity: 'common' },
     { id: 12, nameKey: 'trash_12_name', type: 'hazardous', feedbackKey: 'trash_12_feedback', icon: '🎨', rarity: 'legendary' },
     { id: 13, nameKey: 'trash_13_name', type: 'collectible', feedbackKey: 'trash_13_feedback', icon: '🍾📜', rarity: 'legendary' },
+    { id: 14, nameKey: 'trash_14_name', type: 'general', feedbackKey: 'trash_14_feedback', icon: 'boot', rarity: 'common' },
+    { id: 15, nameKey: 'trash_15_name', type: 'general', feedbackKey: 'trash_15_feedback', icon: 'soda_rings', rarity: 'rare' },
+    { id: 16, nameKey: 'trash_16_name', type: 'hazardous', feedbackKey: 'trash_16_feedback', icon: 'barrel', rarity: 'legendary' },
+    { id: 17, nameKey: 'trash_17_name', type: 'general', feedbackKey: 'trash_17_feedback', icon: 'net', rarity: 'rare' },
 ];
 
 const getLocalizedTrashItems = (t: (key: TranslationKeys) => string): TrashItemData[] => {
@@ -444,6 +464,10 @@ interface MarketOrder {
 const trashIcons: { [key: string]: string } = {
     '🍎': '🍎', '🍾': '🍾', '🛍️': '🛍️', '🔋': '🔋', '🐟': '🐟', '📰': '📰', '☕': '☕', '💡': '💡', '🍌': '🍌', '🥫': '🥫', '🎨': '🎨', '🍾📜': '🍾📜',
     'plastic_bag': '👜', 
+    'boot': '👢',
+    'soda_rings': ' plastic_rings',
+    'barrel': '🛢️',
+    'net': '🕸️',
 };
 
 const DAILY_REWARDS: {type: 'coins' | 'upgradeCore', amount: number}[] = [
@@ -1017,10 +1041,10 @@ const WaterSurface: FC<{ waterLevel: number }> = ({ waterLevel }) => (
                 <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
             </defs>
             <g className="parallax">
-                <use xlinkHref="#gentle-wave" x="48" y="0" fill="rgba(30,58,138,0.7)" />
-                <use xlinkHref="#gentle-wave" x="48" y="3" fill="rgba(30,58,138,0.5)" />
-                <use xlinkHref="#gentle-wave" x="48" y="5" fill="rgba(30,58,138,0.3)" />
-                <use xlinkHref="#gentle-wave" x="48" y="7" fill="#1e3a8a" />
+                <use xlinkHref="#gentle-wave" x="48" y="0" />
+                <use xlinkHref="#gentle-wave" x="48" y="3" />
+                <use xlinkHref="#gentle-wave" x="48" y="5" />
+                <use xlinkHref="#gentle-wave" x="48" y="7" />
             </g>
         </svg>
     </div>
@@ -1111,6 +1135,61 @@ const GameBubbles = React.memo(() => (
     </div>
 ));
 
+const SkyObjects = React.memo(({ timeOfDay }: { timeOfDay: 'day' | 'sunset' | 'night' }) => {
+    const sunColors = {
+        day: 'radial-gradient(circle, rgba(255, 255, 224, 0.8) 0%, rgba(255, 255, 224, 0) 70%)',
+        sunset: 'radial-gradient(circle, rgba(255, 126, 95, 0.8) 0%, rgba(254, 180, 123, 0) 70%)',
+        night: 'radial-gradient(circle, rgba(240, 240, 255, 0.7) 0%, rgba(240, 240, 255, 0) 70%)',
+    };
+    const sunAnimationDuration = 120; // seconds for a full cycle
+
+    return (
+        <>
+            <div className="sky-background">
+                <div className="sun-container" style={{ animationDuration: `${sunAnimationDuration}s` }}>
+                    <div className="sun" style={{ background: sunColors[timeOfDay] }}></div>
+                </div>
+                <div className="stars">
+                    {Array.from({ length: 100 }).map((_, i) => {
+                        const size = 1 + Math.random() * 2;
+                        return <div key={i} className="star" style={{
+                            width: size, height: size,
+                            top: `${Math.random() * 100}%`,
+                            left: `${Math.random() * 100}%`,
+                            animationDelay: `${Math.random() * 2}s`,
+                        }} />;
+                    })}
+                </div>
+                <div className="clouds clouds-1"></div>
+                <div className="clouds clouds-2"></div>
+                <div className="clouds clouds-3"></div>
+            </div>
+            {timeOfDay !== 'night' && (
+                <div className="bird-container">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                        <div key={i} className="bird" style={{
+                            top: `${10 + Math.random() * 30}%`,
+                            animationDuration: `${15 + Math.random() * 10}s`,
+                            animationDelay: `${Math.random() * 15}s`,
+                        }}></div>
+                    ))}
+                </div>
+            )}
+        </>
+    );
+});
+
+const RainEffect = React.memo(() => (
+    <div className="rain">
+        {Array.from({ length: 100 }).map((_, i) => (
+            <div key={i} className="drop" style={{
+                left: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 0.5}s`,
+            }}></div>
+        ))}
+    </div>
+));
+
 
 const TrashCollectingGame: FC<{ onCollectionEnd: (collectedItems: TrashItemData[]) => void; allTrashItems: TrashItemData[]; t: (key: TranslationKeys) => string; playerData: PlayerData | null; }> = ({ onCollectionEnd, allTrashItems, t, playerData }) => {
     const gameAreaRef = useRef<HTMLDivElement>(null);
@@ -1133,8 +1212,12 @@ const TrashCollectingGame: FC<{ onCollectionEnd: (collectedItems: TrashItemData[
     const [underwaterTrash, setUnderwaterTrash] = useState<UnderwaterTrashItem[]>([]);
     const [caughtTrash, setCaughtTrash] = useState<TrashItemData | null>(null);
     const [collectedTrash, setCollectedTrash] = useState<TrashItemData[]>([]);
-    const [fishes, setFishes] = useState<{ id: number; x: number; y: number; size: number; speed: number; right: boolean }[]>([]);
+    const [fishes, setFishes] = useState<{ id: number; x: number; y: number; size: number; speed: number; right: boolean, type: 'clown' | 'angel' | 'tuna' }[]>([]);
     const [isEnding, setIsEnding] = useState(false);
+    
+    const [timeOfDay, setTimeOfDay] = useState<'day' | 'sunset' | 'night'>('day');
+    const [weather, setWeather] = useState<'clear' | 'rainy'>('clear');
+
     
     const upgrades = playerData?.upgrades || { capacity: 1, hookSpeed: 1 };
     const customization = playerData?.customization || { boatColor: '#8b4513', flag: '🏴‍☠️' };
@@ -1150,6 +1233,25 @@ const TrashCollectingGame: FC<{ onCollectionEnd: (collectedItems: TrashItemData[
             setTimeout(() => onCollectionEnd(collectedTrash), 250);
         }
     }, [isEnding, collectedTrash, onCollectionEnd]);
+    
+     // Day/Night Cycle and Weather
+    useEffect(() => {
+        const cycle = () => {
+            setTimeOfDay(current => {
+                if (current === 'day') {
+                    if (Math.random() < 0.2) setWeather('rainy');
+                    return 'sunset';
+                }
+                if (current === 'sunset') {
+                    setWeather('clear');
+                    return 'night';
+                }
+                return 'day';
+            });
+        };
+        const timer = setInterval(cycle, 40000); // 40 seconds per phase
+        return () => clearInterval(timer);
+    }, []);
 
     // Initialize Trash and Fish
     useEffect(() => {
@@ -1162,7 +1264,7 @@ const TrashCollectingGame: FC<{ onCollectionEnd: (collectedItems: TrashItemData[
 
         const weightedTrashPool = allTrashItems.flatMap(item => Array(getRarityWeight(item.rarity)).fill(item));
         
-        const newTrash: UnderwaterTrashItem[] = [...Array(30)].map(() => {
+        const newTrash: UnderwaterTrashItem[] = [...Array(40)].map(() => {
             const item = weightedTrashPool[Math.floor(Math.random() * weightedTrashPool.length)];
             return {
                 ...item,
@@ -1175,13 +1277,15 @@ const TrashCollectingGame: FC<{ onCollectionEnd: (collectedItems: TrashItemData[
         });
         setUnderwaterTrash(newTrash);
 
-        const newFishes = Array.from({ length: 20 }).map((_, i) => ({
+        const fishTypes: ('clown' | 'angel' | 'tuna')[] = ['clown', 'angel', 'tuna'];
+        const newFishes = Array.from({ length: 30 }).map((_, i) => ({
             id: i,
             x: Math.random() * worldWidth,
             y: waterLevel + 150 + Math.random() * (gameHeight - waterLevel - 200),
             size: 20 + Math.random() * 30,
             speed: 1 + Math.random() * 2,
             right: Math.random() > 0.5,
+            type: fishTypes[Math.floor(Math.random() * fishTypes.length)],
         }));
         setFishes(newFishes);
     }, [worldWidth, waterLevel, allTrashItems]);
@@ -1354,14 +1458,12 @@ const TrashCollectingGame: FC<{ onCollectionEnd: (collectedItems: TrashItemData[
         }
     }, [boatPos, hookState, cameraX]);
 
+    const gameContainerClasses = `collection-game-container time-${timeOfDay} weather-${weather}`;
+
     return (
-        <div ref={gameAreaRef} className="collection-game-container">
-            <div className="sky-background">
-                <div className="sun"></div>
-                <div className="clouds clouds-1"></div>
-                <div className="clouds clouds-2"></div>
-                <div className="clouds clouds-3"></div>
-            </div>
+        <div ref={gameAreaRef} className={gameContainerClasses}>
+            <SkyObjects timeOfDay={timeOfDay} />
+            {weather === 'rainy' && <RainEffect />}
             
             <div className="caustic-overlay"></div>
             <GameBubbles />
@@ -1394,7 +1496,7 @@ const TrashCollectingGame: FC<{ onCollectionEnd: (collectedItems: TrashItemData[
                     <div key={item.id} className="collectible-trash" style={{ left: item.x, top: item.y }}>{trashIcons[item.icon] || '🗑️'}</div>
                 ))}
                 {fishes.map(fish => (
-                    <div key={fish.id} className="swimming-fish" style={{ left: fish.x, top: fish.y, width: fish.size, height: fish.size*0.6, transform: fish.right ? '' : 'scaleX(-1)' }}></div>
+                    <div key={fish.id} className={`swimming-fish fish-type-${fish.type}`} style={{ left: fish.x, top: fish.y, transform: fish.right ? '' : 'scaleX(-1)' }}></div>
                 ))}
             </div>
 
@@ -2431,383 +2533,394 @@ const App: FC = () => {
                 setCompletedQuestsForToast(justCompletedQuests);
             }
 
+            const totalItemsCollected = result.correct + result.incorrect;
+            
+            const updates: { [key: string]: any } = {
+                totalScore: increment(result.score),
+                weeklyScore: increment(result.score),
+                coins: increment(coinsEarned),
+                xp: increment(xpEarned),
+                dailyQuests: newQuests,
+                weeklyContract: newContract,
+                'collectibles.mapPieces': increment(result.collectedMapPieces),
+            };
+
+            // Add sorted counts to inventory
+            for (const key in result.sortedCounts) {
+                const type = key as TrashType;
+                if (result.sortedCounts[type] > 0) {
+                    updates[`inventory.${type}`] = increment(result.sortedCounts[type]);
+                }
+            }
+
+            const statsUpdates: { [key: string]: any } = {
+                totalItems: increment(totalItemsCollected),
+            };
+            for (const key in result.sortedCounts) {
+                const type = key as TrashType;
+                if (result.sortedCounts[type] > 0) {
+                    statsUpdates[type] = increment(result.sortedCounts[type]);
+                }
+            }
+
             await runTransaction(db, async (transaction) => {
-                const playerDoc = await transaction.get(playerDocRef);
-                if (!playerDoc.exists()) { throw "Document does not exist!"; }
-                
-                const docData = playerDoc.data() as PlayerData;
-                let { level, xp, coins, totalScore, weeklyScore } = docData;
-                let inventory = { ...docData.inventory };
-                let collectibles = { ...docData.collectibles };
-                
-                xp += xpEarned;
-                coins += coinsEarned;
-                totalScore += result.score;
-                weeklyScore += result.score;
-                collectibles.mapPieces = (collectibles.mapPieces || 0) + result.collectedMapPieces;
-
-                // Level up logic
-                let xpForNextLevel = level * 500;
-                while (xp >= xpForNextLevel) {
-                    xp -= xpForNextLevel;
-                    level++;
-                    xpForNextLevel = level * 500;
-                }
-
-                // Update inventory
-                for (const type in result.sortedCounts) {
-                    inventory[type as TrashType] = (inventory[type as TrashType] || 0) + result.sortedCounts[type as TrashType];
-                }
-
-                transaction.update(playerDocRef, { 
-                    level, xp, coins, totalScore, weeklyScore,
-                    dailyQuests: newQuests,
-                    weeklyContract: newContract,
-                    inventory,
-                    collectibles,
-                });
-                
-                // Update global stats
-                const statsUpdate: {[key: string]: any} = {
-                    totalItems: increment(result.correct + result.incorrect)
-                };
-                for (const type in result.sortedCounts) {
-                    statsUpdate[type] = increment(result.sortedCounts[type as TrashType]);
-                }
-                transaction.set(statsDocRef, statsUpdate, { merge: true });
+                transaction.update(playerDocRef, updates);
+                transaction.set(statsDocRef, statsUpdates, { merge: true });
             });
+            
+            const newXP = playerData.xp + xpEarned;
+            const xpForNextLevel = playerData.level * 500;
+            const newLevel = newXP >= xpForNextLevel ? playerData.level + 1 : playerData.level;
+            const remainingXP = newXP >= xpForNextLevel ? newXP - xpForNextLevel : newXP;
 
+            setPlayerData(prev => prev ? {
+                ...prev,
+                totalScore: prev.totalScore + result.score,
+                weeklyScore: prev.weeklyScore + result.score,
+                coins: prev.coins + coinsEarned,
+                xp: remainingXP,
+                level: newLevel,
+                dailyQuests: newQuests,
+                weeklyContract: newContract,
+                collectibles: {
+                    ...prev.collectibles,
+                    mapPieces: (prev.collectibles?.mapPieces || 0) + result.collectedMapPieces,
+                },
+                inventory: Object.entries(result.sortedCounts).reduce((acc, [type, count]) => {
+                    acc[type as TrashType] = (acc[type as TrashType] || 0) + count;
+                    return acc;
+                }, { ...prev.inventory })
+            } : null);
             setGameState('RESULTS');
         } catch (error) {
-            console.error("Save Progress Error:", error);
+            console.error("Failed to save progress:", error);
             setSaveError(true);
         } finally {
             setIsSaving(false);
         }
     };
     
-    const handleProfileSave = (updatedUser: User) => {
-        if (!user) return;
-        localStorage.setItem(`profileSetupComplete_${user.uid}`, 'true');
-        setUser(updatedUser);
-        setPlayerData(prev => prev ? { ...prev, displayName: updatedUser.displayName || '', photoURL: updatedUser.photoURL || '🐙' } : null);
-        setShowProfileSetupPopup(false);
-        setIsEditingProfile(false);
-        if(gameState !== 'HARBOR') {
-            setGameState('HARBOR');
-        }
-    };
-
     const handleClaimDailyReward = async () => {
-        if (!user || !playerData || !canClaimDailyRewardCheck(playerData)) return;
+        if (!user || isGuest || !playerData || !canClaimDailyRewardCheck(playerData)) return;
+
         const streak = playerData.loginStreak || 0;
         const reward = DAILY_REWARDS[streak];
+        if (!reward) return;
 
         const playerDocRef = doc(db, "players", user.uid);
-        await runTransaction(db, async (transaction) => {
-            const playerDoc = await transaction.get(playerDocRef);
-            if (!playerDoc.exists()) throw "Document does not exist!";
-            
-            const updates: {[key: string]: any} = {
-                loginStreak: increment(1),
-                lastLoginClaim: serverTimestamp()
-            };
-            if(reward.type === 'coins') {
-                updates.coins = increment(reward.amount);
-            } else if (reward.type === 'upgradeCore') {
-                updates.upgradeCores = increment(reward.amount);
-            }
-            transaction.update(playerDocRef, updates);
-        });
+        const updates: { [key: string]: any } = {
+            lastLoginClaim: serverTimestamp(),
+            loginStreak: increment(1),
+            [reward.type === 'coins' ? 'coins' : 'upgradeCores']: increment(reward.amount)
+        };
 
-        setPlayerData(p => {
-            if (!p) return null;
-            return {
-                ...p,
+        try {
+            await setDoc(playerDocRef, updates, { merge: true });
+            setPlayerData(prev => prev ? {
+                ...prev,
                 loginStreak: streak + 1,
-                lastLoginClaim: Timestamp.now(),
-                coins: p.coins + (reward.type === 'coins' ? reward.amount : 0),
-                upgradeCores: p.upgradeCores + (reward.type === 'upgradeCore' ? reward.amount : 0),
-            };
-        });
-    };
-    
-    const handleClaimQuestReward = async (questId: string, isWeekly: boolean) => {
-        if (!user || !playerData) return;
-        const playerDocRef = doc(db, "players", user.uid);
-
-        let questToClaim: Quest | null = null;
-        let questsList = isWeekly ? (playerData.weeklyContract ? [playerData.weeklyContract] : []) : (playerData.dailyQuests || []);
-        
-        const questIndex = questsList.findIndex(q => q.id === questId);
-        if (questIndex > -1) {
-            questToClaim = questsList[questIndex];
+                [reward.type]: (prev[reward.type as 'coins' | 'upgradeCores'] || 0) + reward.amount,
+                lastLoginClaim: new Timestamp(Math.floor(Date.now() / 1000), 0) // Local approximation
+            } : null);
+            setShowDailyRewards(false);
+        } catch (error) {
+            console.error("Failed to claim daily reward:", error);
         }
+    };
+
+    const handleClaimQuestReward = async (questId: string, isWeekly: boolean) => {
+        if (!user || isGuest || !playerData) return;
+
+        const questList = isWeekly ? (playerData.weeklyContract ? [playerData.weeklyContract] : []) : (playerData.dailyQuests || []);
+        const questToClaim = questList.find(q => q.id === questId);
 
         if (!questToClaim || questToClaim.claimed || questToClaim.progress < questToClaim.target) return;
-        
-        const reward = questToClaim.reward;
-        
-        await runTransaction(db, async (transaction) => {
-            const playerDoc = await transaction.get(playerDocRef);
-            if (!playerDoc.exists()) throw "Document does not exist!";
 
-            const updates: {[key: string]: any} = {};
-            if(reward.type === 'coins') updates.coins = increment(reward.amount);
-            if(reward.type === 'xp') updates.xp = increment(reward.amount);
-            if(reward.type === 'upgradeCore') updates.upgradeCores = increment(reward.amount);
-            
-            const data = playerDoc.data() as PlayerData;
-            if(isWeekly && data.weeklyContract) {
-                data.weeklyContract.claimed = true;
-                updates.weeklyContract = data.weeklyContract;
-            } else if (!isWeekly && Array.isArray(data.dailyQuests)) {
-                const idx = data.dailyQuests.findIndex(q => q.id === questId);
-                if (idx > -1) data.dailyQuests[idx].claimed = true;
-                updates.dailyQuests = data.dailyQuests;
-            }
-            
-            transaction.update(playerDocRef, updates);
-        });
+        const { reward } = questToClaim;
+        const playerDocRef = doc(db, "players", user.uid);
+        const updates: { [key: string]: any } = {
+            [reward.type]: increment(reward.amount)
+        };
         
-        setPlayerData(p => {
-            if(!p) return null;
-            const newP = JSON.parse(JSON.stringify(p));
-            if (isWeekly && newP.weeklyContract) {
-                newP.weeklyContract.claimed = true;
-            } else {
-                const idx = newP.dailyQuests.findIndex((q: Quest) => q.id === questId);
-                if(idx > -1) newP.dailyQuests[idx].claimed = true;
-            }
-             if (reward.type === 'coins') newP.coins += reward.amount;
-             if (reward.type === 'xp') newP.xp += reward.amount;
-             if (reward.type === 'upgradeCore') newP.upgradeCores += reward.amount;
-            return newP;
-        });
+        let updatedQuests;
+        if (isWeekly) {
+            updates['weeklyContract.claimed'] = true;
+        } else {
+            updatedQuests = (playerData.dailyQuests || []).map(q => q.id === questId ? { ...q, claimed: true } : q);
+            updates['dailyQuests'] = updatedQuests;
+        }
+
+        try {
+            await setDoc(playerDocRef, updates, { merge: true });
+            setPlayerData(prev => {
+                if (!prev) return null;
+                const rewardKey = reward.type as keyof PlayerData;
+                return {
+                    ...prev,
+                    [rewardKey]: (prev[rewardKey] as number || 0) + reward.amount,
+                    dailyQuests: isWeekly ? prev.dailyQuests : updatedQuests as Quest[],
+                    weeklyContract: isWeekly && prev.weeklyContract ? { ...prev.weeklyContract, claimed: true } : prev.weeklyContract
+                };
+            });
+        } catch (error) {
+            console.error("Failed to claim quest reward:", error);
+        }
     };
 
     const handleUpgrade = async (type: 'capacity' | 'hookSpeed') => {
-        if(!user || !playerData) return;
+        if (!user || isGuest || !playerData) return;
+
         const currentLevel = playerData.upgrades[type];
-        const isMaxLevel = type === 'capacity' ? currentLevel >= MAX_LEVEL_CAPACITY : currentLevel >= MAX_LEVEL_HOOK_SPEED;
-        if(isMaxLevel) return;
-        
-        const cost = (type === 'capacity' ? UPGRADE_COSTS.capacity[currentLevel - 1] : UPGRADE_COSTS.hookSpeed[currentLevel - 1]);
+        const maxLevel = type === 'capacity' ? MAX_LEVEL_CAPACITY : MAX_LEVEL_HOOK_SPEED;
+        if (currentLevel >= maxLevel) return;
+
+        const cost = UPGRADE_COSTS[type][currentLevel - 1];
         if (!cost || playerData.coins < cost.coins || playerData.upgradeCores < cost.cores) return;
 
         const playerDocRef = doc(db, "players", user.uid);
-        await runTransaction(db, async (transaction) => {
-            const playerDoc = await transaction.get(playerDocRef);
-            if (!playerDoc.exists()) throw "Document does not exist!";
-            
-            const updates: {[key: string]: any} = {
+        try {
+            await setDoc(playerDocRef, {
+                [`upgrades.${type}`]: increment(1),
                 coins: increment(-cost.coins),
-                upgradeCores: increment(-cost.cores),
-                [`upgrades.${type}`]: increment(1)
-            };
-            transaction.update(playerDocRef, updates);
-        });
-        
-        setPlayerData(p => {
-            if(!p) return null;
-            const newP = {...p, upgrades: {...p.upgrades}};
-            newP.coins -= cost.coins;
-            newP.upgradeCores -= cost.cores;
-            newP.upgrades[type]++;
-            return newP;
-        });
+                upgradeCores: increment(-cost.cores)
+            }, { merge: true });
+
+            setPlayerData(prev => prev ? {
+                ...prev,
+                coins: prev.coins - cost.coins,
+                upgradeCores: prev.upgradeCores - cost.cores,
+                upgrades: {
+                    ...prev.upgrades,
+                    [type]: prev.upgrades[type] + 1
+                }
+            } : null);
+        } catch (error) {
+            console.error(`Failed to upgrade ${type}:`, error);
+        }
     };
-    
+
     const handleStartResearch = async (researchId: string) => {
-        if (!user || !playerData) return;
-        const research = RESEARCH_DATA.find(r => r.id === researchId);
+        if (!user || isGuest || !playerData) return;
+
+        const researchData = RESEARCH_DATA.find(r => r.id === researchId);
+        if (!researchData) return;
+        
         const playerResearch = playerData.research[researchId] || { level: 0, researchCompleteTime: null };
-        if (!research || playerResearch.level >= research.maxLevel || playerResearch.researchCompleteTime) return;
-        
-        const cost = research.costs[playerResearch.level];
-        if (playerData.upgradeCores < cost.cores) return;
-        
+        if (playerResearch.level >= researchData.maxLevel || playerResearch.researchCompleteTime) return;
+
+        const cost = researchData.costs[playerResearch.level];
+        if (!cost || playerData.upgradeCores < cost.cores) return;
+
         const completeTime = new Date();
         completeTime.setHours(completeTime.getHours() + cost.durationHours);
+        const completeTimestamp = Timestamp.fromDate(completeTime);
         
         const playerDocRef = doc(db, "players", user.uid);
-        await runTransaction(db, async (transaction) => {
-            transaction.update(playerDocRef, {
-                upgradeCores: increment(-cost.cores),
-                [`research.${researchId}.researchCompleteTime`]: Timestamp.fromDate(completeTime)
-            });
-        });
-        
-         setPlayerData(p => {
-            if(!p) return null;
-            const newP = JSON.parse(JSON.stringify(p));
-            newP.upgradeCores -= cost.cores;
-            newP.research[researchId] = {...(newP.research[researchId] || {level:0}), researchCompleteTime: Timestamp.fromDate(completeTime)};
-            return newP;
-        });
-    };
-    
-    const handleCompleteResearch = async (researchId: string) => {
-         if (!user || !playerData) return;
-         const playerDocRef = doc(db, "players", user.uid);
-         await runTransaction(db, async (transaction) => {
-             transaction.update(playerDocRef, {
-                 [`research.${researchId}.level`]: increment(1),
-                 [`research.${researchId}.researchCompleteTime`]: null
-             });
-         });
+        try {
+            await setDoc(playerDocRef, {
+                [`research.${researchId}.researchCompleteTime`]: completeTimestamp,
+                upgradeCores: increment(-cost.cores)
+            }, { merge: true });
 
-         setPlayerData(p => {
-             if(!p) return null;
-             const newP = JSON.parse(JSON.stringify(p));
-             newP.research[researchId].level++;
-             newP.research[researchId].researchCompleteTime = null;
-             return newP;
-         });
+            setPlayerData(prev => prev ? {
+                ...prev,
+                upgradeCores: prev.upgradeCores - cost.cores,
+                research: {
+                    ...prev.research,
+                    [researchId]: {
+                        ...prev.research[researchId],
+                        level: prev.research[researchId]?.level || 0,
+                        researchCompleteTime: completeTimestamp
+                    }
+                }
+            } : null);
+        } catch (error) {
+            console.error("Failed to start research:", error);
+        }
+    };
+
+    const handleCompleteResearch = async (researchId: string) => {
+        if (!user || isGuest || !playerData) return;
+
+        const playerResearch = playerData.research[researchId];
+        if (!playerResearch || !playerResearch.researchCompleteTime || playerResearch.researchCompleteTime.toDate() > new Date()) return;
+        
+        const playerDocRef = doc(db, "players", user.uid);
+        try {
+            await setDoc(playerDocRef, {
+                [`research.${researchId}.level`]: increment(1),
+                [`research.${researchId}.researchCompleteTime`]: null,
+            }, { merge: true });
+
+            setPlayerData(prev => prev ? {
+                ...prev,
+                research: {
+                    ...prev.research,
+                    [researchId]: {
+                        ...prev.research[researchId],
+                        level: (prev.research[researchId]?.level || 0) + 1,
+                        researchCompleteTime: null
+                    }
+                }
+            } : null);
+        } catch (error) {
+            console.error("Failed to complete research:", error);
+        }
     };
 
     const handleCraftMarketOrder = async () => {
-        if (!user || !playerData || !playerData.marketOrder) return;
+        if (!user || isGuest || !playerData || !playerData.marketOrder) return;
         const order = playerData.marketOrder;
         
-        let canCraft = Object.entries(order.required).every(([type, amount]) => {
-            return (playerData.inventory[type as TrashType] || 0) >= amount;
-        });
+        const canCraft = Object.entries(order.required).every(([type, amount]) => 
+            (playerData.inventory[type as TrashType] || 0) >= amount
+        );
         if (!canCraft) return;
 
         const playerDocRef = doc(db, "players", user.uid);
-        await runTransaction(db, async (transaction) => {
-            const updates: {[key: string]: any} = { marketOrder: null };
-            
-            Object.entries(order.required).forEach(([type, amount]) => {
-                updates[`inventory.${type}`] = increment(-amount);
+        const updates: { [key: string]: any } = {
+            [order.reward.type]: increment(order.reward.amount)
+        };
+        for (const type in order.required) {
+            updates[`inventory.${type}`] = increment(-order.required[type as TrashType]!);
+        }
+        
+        const newOrder = { ...MARKET_ORDER_POOL[Math.floor(Math.random() * MARKET_ORDER_POOL.length)], id: `market_${Date.now()}` };
+        updates.marketOrder = newOrder;
+        updates.lastMarketOrderRefresh = serverTimestamp();
+        
+        try {
+            await setDoc(playerDocRef, updates, { merge: true });
+            setPlayerData(prev => {
+                if (!prev) return null;
+                const newInventory = { ...prev.inventory };
+                for (const type in order.required) {
+                    newInventory[type as TrashType] -= order.required[type as TrashType]!;
+                }
+                const rewardKey = order.reward.type as keyof PlayerData;
+                return {
+                    ...prev,
+                    [rewardKey]: (prev[rewardKey] as number || 0) + order.reward.amount,
+                    inventory: newInventory,
+                    marketOrder: newOrder
+                };
             });
-            
-            if(order.reward.type === 'coins') updates.coins = increment(order.reward.amount);
-            if(order.reward.type === 'upgradeCore') updates.upgradeCores = increment(order.reward.amount);
-            if(order.reward.type === 'coralFragment') updates.coralFragments = increment(order.reward.amount);
-            
-            transaction.update(playerDocRef, updates);
-        });
-
-        setPlayerData(p => {
-             if(!p) return null;
-             const newP = JSON.parse(JSON.stringify(p));
-             newP.marketOrder = null;
-             Object.entries(order.required).forEach(([type, amount]) => {
-                newP.inventory[type as TrashType] -= amount;
-             });
-             if(order.reward.type === 'coins') newP.coins += order.reward.amount;
-             if(order.reward.type === 'upgradeCore') newP.upgradeCores += order.reward.amount;
-             if(order.reward.type === 'coralFragment') newP.coralFragments += order.reward.amount;
-             return newP;
-        });
+        } catch (error) {
+            console.error("Failed to craft market order:", error);
+        }
     };
-    
+
     const handleSaveCustomization = async (customization: PlayerCustomization) => {
-        if (!user || !playerData) return;
+        if (!user || isGuest || !playerData) return;
+
         const playerDocRef = doc(db, "players", user.uid);
-        await setDoc(playerDocRef, { customization }, { merge: true });
-        setPlayerData(p => p ? { ...p, customization } : null);
+        try {
+            await setDoc(playerDocRef, { customization }, { merge: true });
+            setPlayerData(prev => prev ? { ...prev, customization } : null);
+        } catch (error) {
+            console.error("Failed to save customization:", error);
+        }
     };
 
     const handleContributeToReef = async (amount: number) => {
-        if (!user || !playerData || playerData.coralFragments < amount) return;
+        if (!user || isGuest || !playerData || playerData.coralFragments < amount) return;
+
         const playerDocRef = doc(db, "players", user.uid);
         const reefDocRef = doc(db, 'coralReef', 'mainReef');
-        const REEF_PROGRESS_PER_FRAGMENT = 0.01;
 
-        await runTransaction(db, async (transaction) => {
-            transaction.update(playerDocRef, {
-                coralFragments: increment(-amount),
-                personalContribution: increment(amount),
+        try {
+            await runTransaction(db, async (transaction) => {
+                const playerDoc = await transaction.get(playerDocRef);
+                if (!playerDoc.exists() || (playerDoc.data().coralFragments || 0) < amount) {
+                    throw "Not enough fragments";
+                }
+                transaction.update(playerDocRef, {
+                    coralFragments: increment(-amount),
+                    personalContribution: increment(amount)
+                });
+                transaction.set(reefDocRef, { progress: increment(amount * 0.01) }, { merge: true });
             });
-            transaction.update(reefDocRef, {
-                progress: increment(amount * REEF_PROGRESS_PER_FRAGMENT)
-            });
-        });
 
-        setPlayerData(p => {
-            if (!p) return null;
-            return {
-                ...p,
-                coralFragments: p.coralFragments - amount,
-                personalContribution: (p.personalContribution || 0) + amount,
-            };
-        });
-    };
-
-    const renderGameState = () => {
-        switch (gameState) {
-            case 'TITLE':
-                return <TitleScreen onLogin={handleLogin} onPlayGuest={handlePlayGuest} t={t} language={language} toggleLanguage={toggleLanguage} />;
-            case 'HARBOR':
-                return playerData ? <HarborScreen 
-                    user={user} 
-                    isGuest={isGuest} 
-                    playerData={playerData}
-                    globalStats={globalStats}
-                    onLogout={handleLogout} 
-                    onStartGame={() => setGameState('COLLECTING')}
-                    onEditProfile={() => setIsEditingProfile(true)}
-                    onShowLeaderboard={() => setShowLeaderboard(true)}
-                    onShowDailyRewards={() => setShowDailyRewards(true)}
-                    onShowQuests={() => setShowQuests(true)}
-                    onShowUpgrades={() => setShowUpgrades(true)}
-                    onShowResearch={() => setShowResearch(true)}
-                    onShowMarket={() => setShowMarket(true)}
-                    onShowCoralReef={() => setShowCoralReef(true)}
-                    onShowLoginPrompt={() => setShowLoginPrompt(true)}
-                    t={t}
-                    language={language}
-                    toggleLanguage={toggleLanguage}
-                /> : <LoadingScreen message={t('initializing')} />;
-            case 'COLLECTING':
-                return <TrashCollectingGame onCollectionEnd={handleCollectionEnd} allTrashItems={allTrashItems} t={t} playerData={playerData} />;
-            case 'SORTING':
-                return collectedTrash !== null ? 
-                    <TrashSortingGame initialTrash={collectedTrash} onGameEnd={handleSortingEnd} t={t} /> 
-                    : <HarborScreen user={user} isGuest={isGuest} playerData={playerData} globalStats={globalStats} onLogout={handleLogout} onStartGame={() => setGameState('COLLECTING')} onEditProfile={() => setIsEditingProfile(true)} onShowLeaderboard={() => setShowLeaderboard(true)} onShowDailyRewards={() => setShowDailyRewards(true)} onShowQuests={() => setShowQuests(true)} onShowUpgrades={() => setShowUpgrades(true)} onShowResearch={() => setShowResearch(true)} onShowMarket={() => setShowMarket(true)} onShowCoralReef={() => setShowCoralReef(true)} onShowLoginPrompt={() => setShowLoginPrompt(true)} t={t} language={language} toggleLanguage={toggleLanguage} />;
-            default:
-                return <TitleScreen onLogin={handleLogin} onPlayGuest={handlePlayGuest} t={t} language={language} toggleLanguage={toggleLanguage} />;
+            setPlayerData(prev => prev ? {
+                ...prev,
+                coralFragments: prev.coralFragments - amount,
+                personalContribution: (prev.personalContribution || 0) + amount
+            } : null);
+        } catch (e) {
+            console.error("Transaction failed: ", e);
         }
     };
 
     return (
         <main className="game-container">
             <AnimatedBackground />
+
             {authInitializing ? (
                 <LoadingScreen message={t('initializing')} />
             ) : (
                 <>
-                    {renderGameState()}
-                    {showProfileSetupPopup && user && <ProfileModal user={user} onSave={handleProfileSave} onClose={() => { setShowProfileSetupPopup(false); if (user) localStorage.setItem(`profileSetupComplete_${user.uid}`, 'true'); setGameState('HARBOR'); }} isEditing={false} t={t} onShowCustomization={() => setShowCustomization(true)} />}
-                    {isEditingProfile && user && <ProfileModal user={user} onSave={handleProfileSave} onClose={() => setIsEditingProfile(false)} isEditing={true} t={t} onShowCustomization={() => setShowCustomization(true)} />}
-                    {showLeaderboard && <LeaderboardModal onClose={() => setShowLeaderboard(false)} t={t} />}
-                    {showDailyRewards && playerData && <DailyRewardsModal onClose={() => setShowDailyRewards(false)} onClaim={handleClaimDailyReward} playerData={playerData} t={t} />}
-                    {showQuests && playerData && <QuestsModal onClose={() => setShowQuests(false)} onClaim={handleClaimQuestReward} playerData={playerData} t={t} />}
-                    {showUpgrades && playerData && <UpgradesModal onClose={() => setShowUpgrades(false)} onUpgrade={handleUpgrade} playerData={playerData} t={t} />}
-                    {showResearch && playerData && <ResearchModal onClose={() => setShowResearch(false)} playerData={playerData} t={t} onStart={handleStartResearch} onComplete={handleCompleteResearch} />}
-                    {showMarket && playerData && <MarketModal onClose={() => setShowMarket(false)} playerData={playerData} t={t} onCraft={handleCraftMarketOrder} />}
-                    {showCustomization && playerData && <CustomizationModal onClose={() => setShowCustomization(false)} playerData={playerData} t={t} onSave={handleSaveCustomization} />}
-                    {showCoralReef && playerData && (
-                        <div className="absolute inset-0 z-40 bg-black/60 flex items-center justify-center p-4">
-                            <CoralReefModal onClose={() => setShowCoralReef(false)} playerData={playerData} globalProgress={globalReefProgress} t={t} onContribute={handleContributeToReef} />
-                        </div>
+                    {gameState === 'TITLE' && (
+                        <TitleScreen
+                            onPlayGuest={handlePlayGuest}
+                            onLogin={handleLogin}
+                            t={t}
+                            language={language}
+                            toggleLanguage={toggleLanguage}
+                        />
                     )}
-                    {showLoginPrompt && <LoginPromptModal onClose={() => setShowLoginPrompt(false)} onLogin={handleLogin} t={t} />}
+                    {gameState === 'HARBOR' && (
+                        <HarborScreen
+                            user={user}
+                            isGuest={isGuest}
+                            playerData={playerData}
+                            globalStats={globalStats}
+                            onLogout={handleLogout}
+                            onStartGame={() => setGameState('COLLECTING')}
+                            onEditProfile={() => {
+                                setIsEditingProfile(true);
+                                setShowProfileSetupPopup(true);
+                            }}
+                            onShowLeaderboard={() => setShowLeaderboard(true)}
+                            onShowDailyRewards={() => setShowDailyRewards(true)}
+                            onShowQuests={() => setShowQuests(true)}
+                            onShowUpgrades={() => setShowUpgrades(true)}
+                            onShowResearch={() => setShowResearch(true)}
+                            onShowMarket={() => setShowMarket(true)}
+                            onShowCoralReef={() => setShowCoralReef(true)}
+                            onShowLoginPrompt={() => setShowLoginPrompt(true)}
+                            t={t}
+                            language={language}
+                            toggleLanguage={toggleLanguage}
+                        />
+                    )}
+                    {gameState === 'COLLECTING' && (
+                        <TrashCollectingGame
+                            onCollectionEnd={handleCollectionEnd}
+                            allTrashItems={allTrashItems}
+                            t={t}
+                            playerData={playerData}
+                        />
+                    )}
+                    {gameState === 'SORTING' && collectedTrash && (
+                        <TrashSortingGame
+                            initialTrash={collectedTrash}
+                            onGameEnd={handleSortingEnd}
+                            t={t}
+                        />
+                    )}
+                    
+                    {/* Modals and Overlays */}
                     {gameState === 'RESULTS' && lastGameResult && (
-                        <ResultsScreen 
-                            score={lastGameResult.score} 
-                            correct={lastGameResult.correct} 
-                            incorrect={lastGameResult.incorrect} 
+                        <ResultsScreen
+                            score={lastGameResult.score}
+                            correct={lastGameResult.correct}
+                            incorrect={lastGameResult.incorrect}
                             onContinue={() => {
                                 if (saveError) {
                                     handleSaveProgress(lastGameResult);
                                 } else {
-                                    setGameState('HARBOR');
                                     setLastGameResult(null);
-                                    setCollectedTrash(null);
+                                    setGameState('HARBOR');
                                 }
                             }}
                             isSaving={isSaving}
@@ -2815,13 +2928,117 @@ const App: FC = () => {
                             t={t}
                         />
                     )}
-                    {completedQuestsForToast.length > 0 && <QuestCompletionToast quests={completedQuestsForToast} onDone={() => setCompletedQuestsForToast([])} t={t} />}
+
+                    {showProfileSetupPopup && user && (
+                        <ProfileModal
+                            user={user}
+                            onSave={(updatedUser) => {
+                                setUser(updatedUser);
+                                setShowProfileSetupPopup(false);
+                                setIsEditingProfile(false);
+                                if (gameState === 'TITLE') setGameState('HARBOR');
+                                localStorage.setItem(`profileSetupComplete_${user.uid}`, 'true');
+                            }}
+                            onClose={() => {
+                                setShowProfileSetupPopup(false);
+                                setIsEditingProfile(false);
+                                if (gameState === 'TITLE') setGameState('HARBOR');
+                            }}
+                            isEditing={isEditingProfile}
+                            t={t}
+                            onShowCustomization={() => setShowCustomization(true)}
+                        />
+                    )}
+
+                    {showLeaderboard && (
+                        <LeaderboardModal onClose={() => setShowLeaderboard(false)} t={t} />
+                    )}
+                    
+                    {showDailyRewards && playerData && (
+                        <DailyRewardsModal 
+                            onClose={() => setShowDailyRewards(false)} 
+                            onClaim={handleClaimDailyReward} 
+                            playerData={playerData}
+                            t={t}
+                        />
+                    )}
+
+                    {showQuests && playerData && (
+                        <QuestsModal 
+                            onClose={() => setShowQuests(false)} 
+                            onClaim={handleClaimQuestReward} 
+                            playerData={playerData}
+                            t={t}
+                        />
+                    )}
+
+                    {showUpgrades && playerData && (
+                        <UpgradesModal
+                            onClose={() => setShowUpgrades(false)}
+                            onUpgrade={handleUpgrade}
+                            playerData={playerData}
+                            t={t}
+                        />
+                    )}
+                    
+                    {showResearch && playerData && (
+                        <ResearchModal 
+                            onClose={() => setShowResearch(false)}
+                            playerData={playerData}
+                            t={t}
+                            onStart={handleStartResearch}
+                            onComplete={handleCompleteResearch}
+                        />
+                    )}
+
+                    {showMarket && playerData && (
+                        <MarketModal 
+                            onClose={() => setShowMarket(false)}
+                            playerData={playerData}
+                            t={t}
+                            onCraft={handleCraftMarketOrder}
+                        />
+                    )}
+
+                    {showCustomization && playerData && (
+                        <CustomizationModal 
+                            onClose={() => setShowCustomization(false)}
+                            playerData={playerData}
+                            t={t}
+                            onSave={handleSaveCustomization}
+                        />
+                    )}
+                    
+                    {showCoralReef && playerData && (
+                        <CoralReefModal 
+                            onClose={() => setShowCoralReef(false)}
+                            playerData={playerData}
+                            globalProgress={globalReefProgress}
+                            t={t}
+                            onContribute={handleContributeToReef}
+                        />
+                    )}
+
+                    {showLoginPrompt && (
+                        <LoginPromptModal
+                            onClose={() => setShowLoginPrompt(false)}
+                            onLogin={handleLogin}
+                            t={t}
+                        />
+                    )}
+
+                    {completedQuestsForToast.length > 0 && (
+                        <QuestCompletionToast 
+                            quests={completedQuestsForToast}
+                            onDone={() => setCompletedQuestsForToast([])}
+                            t={t}
+                        />
+                    )}
                 </>
             )}
         </main>
     );
 };
-
 
 const container = document.getElementById('root');
 if (container) {

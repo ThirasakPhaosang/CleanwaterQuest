@@ -1,5 +1,24 @@
 
 
+:root {
+    --sky-day-top: #6ab1d7;
+    --sky-day-bottom: #a2d2f2;
+    --sky-sunset-top: #ff7e5f;
+    --sky-sunset-bottom: #feb47b;
+    --sky-night-top: #0f172a;
+    --sky-night-bottom: #334155;
+
+    --water-day: #1e3a8a;
+    --water-sunset: #6d28d9;
+    --water-night: #1e293b;
+
+    --sand-day-1: #3a322b;
+    --sand-day-2: #5a4a3e;
+    --sand-night-1: #2a221b;
+    --sand-night-2: #4a3a2e;
+}
+
+
 body {
     background-color: #0d1a2e; /* Deep ocean blue base */
     font-family: 'Lilita One', cursive;
@@ -53,8 +72,16 @@ main {
     inset: 0;
     z-index: 0;
     overflow: hidden;
-    background: linear-gradient(180deg, #1e3a8a 0%, #0c1a2e 100%);
+    background: linear-gradient(180deg, var(--sky-day-top) 0%, var(--sky-day-bottom) 100%);
+    transition: background 2s ease-in-out;
 }
+.collection-game-container.time-sunset .background-container {
+     background: linear-gradient(180deg, var(--sky-sunset-top) 0%, var(--sky-sunset-bottom) 100%);
+}
+.collection-game-container.time-night .background-container {
+     background: linear-gradient(180deg, var(--sky-night-top) 0%, var(--sky-night-bottom) 100%);
+}
+
 
 .god-ray {
     position: absolute;
@@ -544,9 +571,19 @@ main {
     height: 100vh;
     overflow: hidden;
     cursor: none;
-    background: linear-gradient(180deg, #0c1a2e 30%, #0c1a2e 100%);
-    transition: filter 0.5s ease-in-out;
+    background: linear-gradient(180deg, var(--water-day) 30%, #0c1a2e 100%);
+    transition: background 2s ease-in-out, filter 0.5s ease-in-out;
 }
+.collection-game-container.time-sunset {
+    background: linear-gradient(180deg, var(--water-sunset) 30%, #0c1a2e 100%);
+}
+.collection-game-container.time-night {
+     background: linear-gradient(180deg, var(--water-night) 30%, #0c1a2e 100%);
+}
+.collection-game-container.weather-rainy {
+    filter: brightness(0.8);
+}
+
 
 /* ENHANCED SANDY BOTTOM */
 .sandy-bottom {
@@ -555,10 +592,14 @@ main {
     left: 0;
     width: 100%;
     height: 20vh; /* A bit deeper for more dimension */
-    background: linear-gradient(to top, #3a322b 0%, #5a4a3e 50%, transparent 100%);
+    background: linear-gradient(to top, var(--sand-day-1) 0%, var(--sand-day-2) 50%, transparent 100%);
     z-index: 0;
     pointer-events: none;
     overflow: hidden; /* contain pseudo elements */
+    transition: background 2s ease-in-out;
+}
+.collection-game-container.time-night .sandy-bottom {
+    background: linear-gradient(to top, var(--sand-night-1) 0%, var(--sand-night-2) 50%, transparent 100%);
 }
 .sandy-bottom::before {
     content: '';
@@ -600,20 +641,101 @@ main {
     left: 0;
     width: 100%;
     height: 30vh; /* Same as water level */
-    background: linear-gradient(180deg, #6ab1d7 0%, #a2d2f2 100%);
+    background: linear-gradient(180deg, var(--sky-day-top) 0%, var(--sky-day-bottom) 100%);
     z-index: 0;
     overflow: hidden;
+    transition: background 2s ease-in-out;
+}
+.collection-game-container.time-sunset .sky-background {
+    background: linear-gradient(180deg, var(--sky-sunset-top) 0%, var(--sky-sunset-bottom) 100%);
+}
+.collection-game-container.time-night .sky-background {
+    background: linear-gradient(180deg, var(--sky-night-top) 0%, var(--sky-night-bottom) 100%);
 }
 
+.sun-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    animation: sun-cycle 60s linear infinite;
+    transform-origin: center 200%;
+}
 .sun {
     position: absolute;
-    top: 10%;
-    left: 75%;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
     width: 100px;
     height: 100px;
-    background: radial-gradient(circle, rgba(255, 255, 224, 0.8) 0%, rgba(255, 255, 224, 0) 70%);
     border-radius: 50%;
     filter: blur(5px);
+}
+@keyframes sun-cycle {
+    0%   { transform: rotate(-90deg); }
+    25%  { transform: rotate(0deg); } /* Noon */
+    50%  { transform: rotate(90deg); }
+    100% { transform: rotate(270deg); }
+}
+
+.stars {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 2s ease-in-out;
+}
+.collection-game-container.time-night .stars {
+    opacity: 1;
+}
+.star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle 2s ease-in-out infinite alternate;
+}
+@keyframes twinkle {
+    from { opacity: 0.5; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1.2); }
+}
+
+.bird-container {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+.bird {
+    position: absolute;
+    width: 30px;
+    height: 2px;
+    background: #333;
+    border-radius: 50%;
+    animation: fly-across 20s linear infinite;
+}
+.bird::before, .bird::after {
+    content: '';
+    position: absolute;
+    width: 15px;
+    height: 2px;
+    background: #333;
+    border-radius: 50%;
+    animation: flap 0.5s ease-in-out infinite alternate;
+}
+.bird::before {
+    left: 0;
+    transform-origin: left;
+}
+.bird::after {
+    right: 0;
+    transform-origin: right;
+}
+@keyframes fly-across {
+    from { left: -5%; }
+    to { left: 105%; }
+}
+@keyframes flap {
+    from { transform: rotate(-20deg); }
+    to { transform: rotate(20deg); }
 }
 
 .clouds {
@@ -623,6 +745,10 @@ main {
     width: 200%;
     height: 100%;
     opacity: 0.6;
+    transition: filter 2s ease-in-out;
+}
+.collection-game-container.weather-rainy .clouds {
+    filter: brightness(0.7);
 }
 .clouds-1 {
     background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwMCIgaGVpZ2h0PSIzMDAiIHZpZXdCb3g9IjAgMCAyMDAwIDMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48ZmlsdGVyIGlkPSJmMSIgeD0iLTQwJSIgeT0iLTQwJSIgaGVpZ2h0PSIyMDAlIiB3aWR0aD0iMjAwJSI+PGZlT2Zmc2V0IGluPSJTb3VyY2VBbHBoYSIgZHk9Ii01IiByZXN1bHQ9Im9mZnNldCIvPjxmZUdhdXNzaWFuQmx1ciBpbj0ib2Zmc2V0IiBzdGREZXZpYXRpb249IjEwIiByZXN1bHQ9ImJsdXIiLz48ZmVNb3JwaG9sb2d5IGluPSJibHVyIiBvcGVyYXRvcj0iZGlsYXRlIiByYWRpdXM9IjUiIHJlc3VsdD0iZGlhbGF0ZWQiLz48ZmVGbG9vZCBmbG9vZC1jb2xvcj0iIzAwMDAwMCIgZmxvb2Qtb3BhY2l0eT0iMC4yNSIgcmVzdWx0PSJjb2xvciIvPjxmZUNvbXBvc2l0ZSBpbj0iY29sb3IiIGluMj0iZGlhbGF0ZWQiIG9wZXJhdG9yPSJpbiIgcmVzdWx0PSJzaGFkb3ciLz48ZmVNb3JwaG9sb2d5IGluPSJTb3VyY2VBbHBoYSIgb3BlcmF0b3I9ImRpbGF0ZSIgcmFkaXVzPSI4IiByZXN1bHQ9ImNsaXAiLz48ZmVGaWx0ZXIgaWQ9ImYyIiB4PSItNDAlIiB4PSItNDAlIiBoZWlnaHQ9IjIwMCUiIHdpZHRoPSIyMDAlIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iMC4wMiIgZGV0YWlsPSIwLjIiIG51bU9jdGF2ZXM9IjIiIHNlZWQ9IjIiIHJlc3VsdD0idHVyYiIvPjxmZURpc3BsYWNlbWVudE1hcCBpbj0iU291cmNlQWxwaGEiIGluMj0idHVyYiIgc2NhbGU9IjUwIiB5Q2hhbm5lbFNlbGVjdG9yPSJBIiByZXN1bHQ9ImRpc3AiLz48L2ZlRmlsdGVyPjwvZGVmcz48ZyBmaWx0ZXI9ImZpbHRlcj11cmwoI2YxKSI+PGcgZmlsbD0id2hpdGUiPjxyZWN0IHdpZHRoPSIyMDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0id2hpdGUiIGZpbHRlcj0idXJsKCNmMikiLz48L2c+PC9nPjwvc3ZnPg==');
@@ -647,6 +773,28 @@ main {
     from { transform: translateX(-50%); }
     to { transform: translateX(0); }
 }
+
+/* Rain Effect */
+.rain {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
+}
+.drop {
+    position: absolute;
+    bottom: 100%;
+    width: 2px;
+    height: 80px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.4));
+    animation: fall 0.5s linear infinite;
+}
+@keyframes fall {
+    to {
+        transform: translateY(100vh);
+    }
+}
+
 
 .game-ui {
     position: fixed;
@@ -732,7 +880,13 @@ main {
     z-index: 2;
     padding-bottom: 5px;
     filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
+    animation: shimmer-detail 5s ease-in-out infinite;
 }
+@keyframes shimmer-detail {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.6; }
+}
+
 
 .coral, .seaweed {
     position: absolute;
@@ -742,12 +896,15 @@ main {
     opacity: 0.7;
 }
 .seaweed {
-    animation: sway linear infinite;
+    animation: sway 6s ease-in-out infinite;
+}
+.collection-game-container.time-night .coral, .collection-game-container.time-night .seaweed {
+    filter: brightness(0.6);
 }
 
 @keyframes sway {
     0%, 100% { transform: skewX(0); }
-    50% { transform: skewX(4deg); }
+    50% { transform: skewX(6deg); }
 }
 
 
@@ -774,13 +931,30 @@ main {
     transition: transform 0.2s linear;
 }
 
-.boat::before {
+.boat::before { /* highlight */
     content: '';
     position: absolute;
     top: -5px; left: -5%; width: 110%; height: 100%;
     border-radius: inherit;
     background: radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.4) 0%, transparent 70%);
 }
+.boat::after { /* wake */
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    width: 200%;
+    height: 30px;
+    background: radial-gradient(ellipse at 50% 100%, rgba(255,255,255,0.15) 0%, transparent 50%);
+    transform: translateX(-50%);
+    border-radius: 50%;
+    animation: wake-bob 2s ease-in-out infinite;
+}
+@keyframes wake-bob {
+    0%, 100% { transform: translateX(-50%) scaleY(1); opacity: 0.15; }
+    50% { transform: translateX(-50%) scaleY(1.2); opacity: 0.25; }
+}
+
 
 .boat-deck {
     position: absolute;
@@ -835,7 +1009,12 @@ main {
     border: 3px solid #6b3e26;
     border-radius: 50%;
     box-shadow: inset 0 0 8px rgba(0,0,0,0.6);
+    transition: background 2s ease-in-out;
 }
+.collection-game-container.time-night .boat-cabin::before {
+    background: linear-gradient(#fdd835, #f57f17); /* Light on */
+}
+
 .boat-mast {
     position: absolute;
     bottom: 35px; /* On top of the deck */
@@ -916,6 +1095,10 @@ main {
     filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
     animation: float-trash 8s ease-in-out infinite;
     transform: translate(-50%, -50%);
+    transition: filter 2s ease-in-out;
+}
+.collection-game-container.time-night .collectible-trash {
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4)) brightness(0.7);
 }
 @keyframes float-trash {
     0% { transform: translate(-50%, -50%) translateY(0) rotate(0deg); }
@@ -934,12 +1117,45 @@ main {
     position: absolute;
     opacity: 0.8;
     z-index: 11;
-    transform: translate(-50%, -50%);
     text-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    will-change: transform, left, top;
+    transition: filter 2s ease-in-out;
 }
+.collection-game-container.time-night .swimming-fish {
+    filter: brightness(0.6);
+}
+.fish-type-clown {
+    width: 35px; height: 25px;
+    background: #ff7f50;
+    border-radius: 50%;
+}
+.fish-type-clown::before { /* Tail */
+    content: ''; position: absolute; right: -10px; top: 5px;
+    width: 0; height: 0; border-style: solid;
+    border-width: 8px 0 8px 12px; border-color: transparent transparent transparent #ff7f50;
+}
+.fish-type-angel {
+    width: 45px; height: 40px;
+    background: #4169e1;
+    border-radius: 50% 50% 20% 20%;
+}
+.fish-type-angel::before { /* Tail */
+     content: ''; position: absolute; right: -15px; top: 10px;
+     width: 20px; height: 20px; background: #4169e1;
+     clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+.fish-type-tuna {
+    width: 60px; height: 20px;
+    background: #808080;
+    border-radius: 50px 50px 0 0;
+}
+.fish-type-tuna::before { /* Tail */
+    content: ''; position: absolute; right: -15px; top: -5px;
+    width: 0; height: 0; border-style: solid;
+    border-width: 15px 0 15px 20px; border-color: transparent transparent transparent #808080;
+    transform: rotate(20deg);
+}
+
 .game-prompt {
     position: fixed;
     bottom: 20%;
@@ -992,7 +1208,12 @@ main {
     background-size: 200% 100%;
     animation: shimmer 10s linear infinite;
     z-index: 20;
+    transition: opacity 2s ease-in-out;
 }
+.collection-game-container.time-night .water-shimmer {
+    opacity: 0.3; /* moon shimmer */
+}
+
 @keyframes shimmer {
     from { background-position: 200% 0; }
     to { background-position: -200% 0; }
@@ -1025,6 +1246,22 @@ main {
   animation-delay: -5s;
   animation-duration: 22s;
 }
+.parallax > use {
+    transition: fill 2s ease-in-out;
+}
+.collection-game-container.time-day .parallax > use:last-child { fill: var(--water-day); }
+.collection-game-container.time-sunset .parallax > use:last-child { fill: var(--water-sunset); }
+.collection-game-container.time-night .parallax > use:last-child { fill: var(--water-night); }
+.collection-game-container.time-day .parallax > use:nth-child(1) { fill: color-mix(in srgb, var(--water-day), transparent 30%); }
+.collection-game-container.time-sunset .parallax > use:nth-child(1) { fill: color-mix(in srgb, var(--water-sunset), transparent 30%); }
+.collection-game-container.time-night .parallax > use:nth-child(1) { fill: color-mix(in srgb, var(--water-night), transparent 30%); }
+.collection-game-container.time-day .parallax > use:nth-child(2) { fill: color-mix(in srgb, var(--water-day), transparent 50%); }
+.collection-game-container.time-sunset .parallax > use:nth-child(2) { fill: color-mix(in srgb, var(--water-sunset), transparent 50%); }
+.collection-game-container.time-night .parallax > use:nth-child(2) { fill: color-mix(in srgb, var(--water-night), transparent 50%); }
+.collection-game-container.time-day .parallax > use:nth-child(3) { fill: color-mix(in srgb, var(--water-day), transparent 70%); }
+.collection-game-container.time-sunset .parallax > use:nth-child(3) { fill: color-mix(in srgb, var(--water-sunset), transparent 70%); }
+.collection-game-container.time-night .parallax > use:nth-child(3) { fill: color-mix(in srgb, var(--water-night), transparent 70%); }
+
 @keyframes move-forever {
   0% {
    transform: translate3d(-90px,0,0);
@@ -1609,8 +1846,11 @@ main {
         transform: translateY(0) translateX(0);
         opacity: 0.6;
     }
+    99.9% {
+        opacity: 0;
+    }
     100% {
-        transform: translateY(-100vh) translateX(var(--sway));
+        transform: translateY(-70vh) translateX(var(--sway));
         opacity: 0;
     }
 }
